@@ -1,4 +1,4 @@
-import { model } from 'mongoose';
+// import { model } from 'mongoose';
 
 export type UserFullName = {
   firstName: string;
