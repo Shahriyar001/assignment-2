@@ -1,62 +1,34 @@
 import { Request, Response } from 'express';
 import { UserService } from './user.service';
-import Joi from 'joi';
+// import Joi from 'joi';
+// import userValidationSchema from './user.validation';
+import { z } from 'zod';
+import userValidationSchema from './user.validation';
 
 const createUser = async (req: Request, res: Response) => {
   try {
-    // creating a scema validation using joi
-
-    const fullNameSchema = Joi.object({
-      firstName: Joi.string()
-        .required()
-        .trim()
-        .pattern(/^[A-Z][a-z]*$/),
-      lastName: Joi.string()
-        .required()
-        .trim()
-        .pattern(/^[A-Za-z]+$/),
-    });
-
-    const addressSchema = Joi.object({
-      street: Joi.string().required(),
-      city: Joi.string().required(),
-      country: Joi.string().required(),
-    });
-
-    const orderSchema = Joi.object({
-      productName: Joi.string().required(),
-      price: Joi.number().required(),
-      quantity: Joi.number().required(),
-    });
-
-    const userSchema = Joi.object({
-      userId: Joi.number().required(),
-      username: Joi.string().required().trim(),
-      password: Joi.string().required(),
-      fullName: fullNameSchema.required(),
-      age: Joi.number().required(),
-      email: Joi.string().required().email(),
-      isActive: Joi.string().valid('active', 'blocked').default('active'),
-      hobbies: Joi.array().items(Joi.string()).required(),
-      address: addressSchema.required(),
-      orders: Joi.array().items(orderSchema),
-    });
+    // creating a scema validation using zod
 
     const { user: userData } = req.body;
 
-    const { error, value } = userSchema.validate(userData);
+    // data valodation using joi
+    // const { error, value} = userValidationSchema.validate(userData);
+
+    // data validation using zod
+
+    const zodparsedData = userValidationSchema.parse(userData);
+
+    const result = await UserService.createUserIntoDB(zodparsedData);
 
     // console.log(error, value);
 
-    if (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        error: error.details,
-      });
-    }
-
-    const result = await UserService.createUserIntoDB(userData);
+    // if (error) {
+    //   res.status(500).json({
+    //     success: false,
+    //     message: 'Internal server error',
+    //     error: error.details,
+    //   });
+    // }
 
     const data = result.toObject();
     const userWithoutPassword = { ...data, password: undefined };
@@ -66,9 +38,14 @@ const createUser = async (req: Request, res: Response) => {
       message: 'Users fetched successfully!',
       data: userWithoutPassword,
     });
-  } catch (err) {
+  } catch (err: any) {
     // console.log(err);
     // Handle errors and send an appropriate response
+    res.status(500).json({
+      success: false,
+      message: err.message || 'Internal server error',
+      // error: error.details,
+    });
   }
 };
 
