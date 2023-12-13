@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Query, Schema, model } from 'mongoose';
 import validator from 'validator';
 import {
   TUser,
@@ -73,6 +73,10 @@ const userSchema = new Schema<TUser, UserModel>({
   hobbies: { type: [String], required: true },
   address: addressSchema,
   orders: [orderSchema],
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // pre save middleware
@@ -89,6 +93,24 @@ userSchema.pre('save', async function (next) {
 // post save middleware hook
 userSchema.post('save', function (doc, next) {
   doc.password = '';
+  next();
+});
+
+// Query Middleware
+userSchema.pre('find', function (next) {
+  //   console.log(this);
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+userSchema.pre('findOne', function (next) {
+  //   console.log(this);
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+userSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
   next();
 });
 

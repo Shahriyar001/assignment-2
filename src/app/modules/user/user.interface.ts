@@ -30,6 +30,7 @@ export type TUser = {
   hobbies: string[];
   address: TUserAddress;
   orders?: TUserOrder[];
+  isDeleted: boolean;
 };
 
 // for creating static

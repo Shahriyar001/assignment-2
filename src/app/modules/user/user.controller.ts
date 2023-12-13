@@ -66,8 +66,12 @@ const getAllUsers = async (req: Request, res: Response) => {
       message: 'Users fetched successfully!',
       data: filteredResult,
     });
-  } catch (err) {
-    console.log(err);
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: err.message || 'Internal server error',
+      // error: error.details,
+    });
   }
 };
 
@@ -101,8 +105,39 @@ const getSingleUser = async (req: Request, res: Response) => {
   }
 };
 
+const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    const result = await UserService.deleteUserFromDB(userId);
+
+    //   const data = result.toObject();
+    //   const userWithoutPassword = { ...data, password: undefined };
+
+    res.status(200).json({
+      success: true,
+      message: 'User deleted successfully!',
+      data: result,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      //   success: false,
+      //   message: 'Internal server error',
+      //   error: err.message,
+      success: false,
+      message: 'User not found',
+      error: {
+        code: 404,
+        description: 'User not found!',
+      },
+    });
+  }
+};
+
 export const UserControllers = {
   createUser,
   getAllUsers,
   getSingleUser,
+  deleteUser,
 };
