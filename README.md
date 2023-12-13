@@ -7,6 +7,9 @@ This project is a Node.js Express application with TypeScript, integrating Mongo
 1. Create a new Node.js Express project.
 2. Set up a MongoDB database using Mongoose for storing user and order data.
 
+ ## First, run the development server:
+npm run start:dev
+
 ## Define Data Models
 
 ### User Data Model
@@ -23,8 +26,7 @@ This project is a Node.js Express application with TypeScript, integrating Mongo
   // ... (other fields)
 }
 
-## First, run the development server:
-npm run start:dev
+
 
 
 
